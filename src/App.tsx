@@ -1,8 +1,6 @@
 import { createSignal, type Component, type ParentComponent, createEffect, Show } from 'solid-js';
 import { buildTree, isJson, parseJsonString } from './lib';
-
-// const defaultRawJson =
-//   '{"glossary": {"title": "example glossary","GlossDiv": {"title": "S","GlossList": {"GlossEntry": {"ID": "SGML","SortAs": "SGML","GlossTerm": "Standard Generalized Markup Language","Acronym": "SGML","Abbrev": "ISO 8879:1986","GlossDef": {"para": "A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso": ["GML", "XML"]},"GlossSee": "markup"}}}}}';
+import { JsonSampleSticker } from './components/JsonSampleSticker';
 
 const App: Component = () => {
   const [rawJson, setRawJson] = createSignal('');
@@ -55,6 +53,7 @@ const App: Component = () => {
         </div>
         <div>Status: {isJson(rawJson()) ? 'valid json' : 'invalid json'}</div>
       </footer>
+      <JsonSampleSticker formNeedsInput={() => !rawJson()} />
     </div>
   );
 };
