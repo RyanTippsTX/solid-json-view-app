@@ -1,5 +1,5 @@
 import { createSignal, type Component, type ParentComponent, createEffect } from 'solid-js';
-import { isJson } from './lib';
+import { isJson, parseJsonString } from './lib';
 
 // const defaultRawJson =
 //   '{"glossary": {"title": "example glossary","GlossDiv": {"title": "S","GlossList": {"GlossEntry": {"ID": "SGML","SortAs": "SGML","GlossTerm": "Standard Generalized Markup Language","Acronym": "SGML","Abbrev": "ISO 8879:1986","GlossDef": {"para": "A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso": ["GML", "XML"]},"GlossSee": "markup"}}}}}';
@@ -10,11 +10,16 @@ const App: Component = () => {
     console.log('🔥 input detected:', rawJson());
   });
 
+  const parsedJsonString = () => parseJsonString(rawJson());
+  const formattedJson = () =>
+    parsedJsonString().success ? JSON.stringify(parsedJsonString().data, null, 4) : '';
+
   return (
     <div class="flex flex-col h-screen">
       <header class="text-center p-1 text-lg bg-burnt-orange">JSON Viewer</header>
       <div class="flex justify-center grow bg-neutral-800">
         <TextColumn>
+          {/* INPUT */}
           <textarea
             id="raw-json"
             tabindex={-1}
@@ -28,11 +33,12 @@ const App: Component = () => {
         </TextColumn>
         <Divider />
         <TextColumn>
+          {/* OUTPUT */}
           <textarea
             id="formatted-json"
             tabindex={-1}
             class="w-full h-full outline-none bg-transparent border-none resize-none"
-            textContent={rawJson()}
+            textContent={formattedJson()}
           />
         </TextColumn>
       </div>
