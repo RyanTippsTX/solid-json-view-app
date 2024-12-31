@@ -1,9 +1,11 @@
-import type { Component, ParentComponent } from 'solid-js';
+import { createSignal, type Component, type ParentComponent, createEffect } from 'solid-js';
 
-const rawJson =
-  '{"glossary": {"title": "example glossary","GlossDiv": {"title": "S","GlossList": {"GlossEntry": {"ID": "SGML","SortAs": "SGML","GlossTerm": "Standard Generalized Markup Language","Acronym": "SGML","Abbrev": "ISO 8879:1986","GlossDef": {"para": "A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso": ["GML", "XML"]},"GlossSee": "markup"}}}}}';
+// const defaultRawJson =
+//   '{"glossary": {"title": "example glossary","GlossDiv": {"title": "S","GlossList": {"GlossEntry": {"ID": "SGML","SortAs": "SGML","GlossTerm": "Standard Generalized Markup Language","Acronym": "SGML","Abbrev": "ISO 8879:1986","GlossDef": {"para": "A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso": ["GML", "XML"]},"GlossSee": "markup"}}}}}';
 
 const App: Component = () => {
+  const [rawJson, setRawJson] = createSignal('');
+
   return (
     <div class="flex flex-col h-screen">
       <header class="text-center p-1 text-lg bg-burnt-orange">JSON Viewer</header>
@@ -15,6 +17,9 @@ const App: Component = () => {
             autofocus
             class="w-full h-full outline-none bg-transparent border-none resize-none"
             placeholder="Paste your raw JSON here..."
+            onInput={(e) => {
+              setRawJson(e.target.value);
+            }}
           />
         </TextColumn>
         <Divider />
@@ -23,7 +28,7 @@ const App: Component = () => {
             id="formatted-json"
             tabindex={-1}
             class="w-full h-full outline-none bg-transparent border-none resize-none"
-            textContent={rawJson}
+            textContent={rawJson()}
           />
         </TextColumn>
       </div>
