@@ -17,14 +17,15 @@ export function parseJsonString(jsonString) {
   }
 }
 
+/** Recursively scans a json-parsed object and tags with  . */
 export function buildTree(data: Object | null, key = 'root') {
-  if (typeof data === 'object' && data !== null) {
-    // note: `typeof null` evaluates to `'object'`
+  // note: `typeof null` evaluates to `'object'` so still need to check for truthiness
+  if (data && typeof data === 'object') {
     return {
       key,
       value: data,
       type: Array.isArray(data) ? 'array' : 'object',
-      expanded: false,
+      expanded: true,
       children: Object.entries(data).map(([k, v]) => buildTree(v, k)),
     };
   } else {
@@ -32,7 +33,7 @@ export function buildTree(data: Object | null, key = 'root') {
       key,
       value: data,
       type: typeof data,
-      expanded: false,
+      expanded: true,
       children: [],
     };
   }

@@ -13,6 +13,16 @@ const config: Config = {
       fontSize: {
         '2xs': '0.625rem',
       },
+      animation: {
+        fade: 'fadeIn .5s ease-in-out',
+      },
+
+      keyframes: {
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '100' },
+        },
+      },
     },
   },
   plugins: [],
