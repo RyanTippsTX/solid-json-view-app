@@ -6,6 +6,10 @@ import { createSignal, type Component, type ParentComponent, createEffect } from
 const App: Component = () => {
   const [rawJson, setRawJson] = createSignal('');
 
+  createEffect(() => {
+    console.log('🔥 input detected:', rawJson());
+  });
+
   return (
     <div class="flex flex-col h-screen">
       <header class="text-center p-1 text-lg bg-burnt-orange">JSON Viewer</header>
