@@ -1,11 +1,11 @@
 import { createSignal, type Component, type ParentComponent, createEffect } from 'solid-js';
+import { isJson } from './lib';
 
 // const defaultRawJson =
 //   '{"glossary": {"title": "example glossary","GlossDiv": {"title": "S","GlossList": {"GlossEntry": {"ID": "SGML","SortAs": "SGML","GlossTerm": "Standard Generalized Markup Language","Acronym": "SGML","Abbrev": "ISO 8879:1986","GlossDef": {"para": "A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso": ["GML", "XML"]},"GlossSee": "markup"}}}}}';
 
 const App: Component = () => {
   const [rawJson, setRawJson] = createSignal('');
-
   createEffect(() => {
     console.log('🔥 input detected:', rawJson());
   });
@@ -41,6 +41,7 @@ const App: Component = () => {
           by <A href="https://www.linkedin.com/in/ryantipps/">in/RyanTipps</A> - Inspired by{' '}
           <A href="https://json.pub">json.pub</A>
         </div>
+        <div>Status: {isJson(rawJson()) ? 'valid json' : 'invalid json'}</div>
       </footer>
     </div>
   );
