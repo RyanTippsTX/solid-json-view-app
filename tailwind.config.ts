@@ -10,6 +10,10 @@ const config: Config = {
           DEFAULT: '#CC5500',
         },
       },
+      // 2xs text
+      fontSize: {
+        '2xs': '0.625rem',
+      },
     },
   },
   plugins: [],

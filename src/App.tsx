@@ -27,7 +27,12 @@ const App: Component = () => {
           />
         </TextColumn>
       </div>
-      <footer class="flex bg-neutral-950 p-3 text-xs italic">footer</footer>
+      <footer class="flex bg-neutral-950 text-neutral-400 px-4 py-3 text-2xs justify-between">
+        <div class="italic">
+          by <A href="https://www.linkedin.com/in/ryantipps/">in/RyanTipps</A> - Inspired by{' '}
+          <A href="https://json.pub">json.pub</A>
+        </div>
+      </footer>
     </div>
   );
 };
@@ -36,6 +41,21 @@ export default App;
 
 const Divider: Component = () => <div class="w-2.5 grow-0 shrink-0 bg-white/5" />;
 
-const TextColumn: ParentComponent = (props) => (
-  <div class="grow p-4 text-sm ">{props.children}</div>
+const TextColumn: ParentComponent = (props) => <div class="grow p-4 text-sm">{props.children}</div>;
+
+const A: Component<{
+  href: string;
+  children: string;
+  target?: string;
+  rel?: string;
+  class?: string;
+}> = (props) => (
+  <a
+    target="_blank"
+    rel="noopener noreferrer"
+    class={`hover:opacity-50 ${props.class}`}
+    href={props.href}
+  >
+    {props.children}
+  </a>
 );
