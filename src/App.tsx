@@ -2,10 +2,9 @@ import { createSignal, type Component, type ParentComponent, createMemo, Show } 
 import { isJson, parseJsonString, buildAnnotatedTree } from './lib';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from './components/Json';
-import { sampleJson } from './components/sampleJson';
 
 const App: Component = () => {
-  const [jsonString, setJsonString] = createSignal(sampleJson);
+  const [jsonString, setJsonString] = createSignal('');
   const data = createMemo(() => parseJsonString(jsonString()));
 
   // Derived signal for the annotated tree
@@ -43,7 +42,7 @@ const App: Component = () => {
               <TreeView
                 node={annotatedTree()}
                 classes={{
-                  propertyName: 'text-white', // White for property names
+                  propertyName: 'text-slate-500', // White for property names
                   string: 'text-orange-500', // Witch purple for strings
                   number: 'text-purple-500', // Candy corn orange for numbers
                   boolean: 'text-green-500', // Slime green for booleans
