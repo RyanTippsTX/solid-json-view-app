@@ -10,16 +10,12 @@ import {
 } from 'solid-js';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from './components/TreeView';
-import { type JsonAnalysis, analyzeJson } from './lib';
-
-export function useJsonAnalyzer(jsonString: () => string): () => JsonAnalysis {
-  return createMemo(() => analyzeJson(jsonString()));
-}
+import { analyzeJson } from './lib';
 
 const App: Component = () => {
   const [jsonString, setJsonString] = createSignal('');
 
-  const analysis = useJsonAnalyzer(jsonString);
+  const analysis = createMemo(() => analyzeJson(jsonString()));
 
   return (
     <div class="flex flex-col h-screen w-screen">
