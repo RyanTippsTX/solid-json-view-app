@@ -39,7 +39,14 @@ const App: Component = () => {
           {/* OUTPUT */}
           <div id="formatted-json" class="w-full h-full p-4 overflow-auto">
             <Show when={annotatedTree()} fallback={<p>Invalid JSON</p>}>
-              <TreeView node={annotatedTree()} />
+              <TreeView
+                node={annotatedTree()}
+                classes={{
+                  primitive: 'text-green-500', // Primitives in green
+                  array: 'text-blue-500', // Arrays in blue
+                  object: 'text-red-500', // Objects in red
+                }}
+              />
             </Show>
           </div>
         </TextColumn>
