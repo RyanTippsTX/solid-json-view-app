@@ -8,7 +8,11 @@ type TreeNode = {
 };
 
 type Classes = {
-  primitive?: string;
+  propertyName?: string;
+  string?: string;
+  number?: string;
+  boolean?: string;
+  null?: string;
   array?: string;
   object?: string;
 };
@@ -18,18 +22,27 @@ export function TreeView(props: { node: TreeNode; classes?: Classes }) {
 
   const toggleCollapse = () => setIsCollapsed(!isCollapsed());
 
+  // Determine class for primitives based on value type
+  const getPrimitiveClass = (value: any) => {
+    if (value === null) return props.classes?.null;
+    if (typeof value === 'string') return props.classes?.string;
+    if (typeof value === 'number') return props.classes?.number;
+    if (typeof value === 'boolean') return props.classes?.boolean;
+    return '';
+  };
+
   return (
     <div class="pl-5 font-mono">
       {/* Display node key */}
       <Show when={props.node.key !== null}>
-        <span>
+        <span class={props.classes?.propertyName}>
           <strong>{props.node.key}:</strong>
         </span>
       </Show>
 
       {/* Display for primitive types */}
       <Show when={props.node.type === 'primitive'}>
-        <span class={props.classes?.primitive}> {JSON.stringify(props.node.value)}</span>
+        <span class={getPrimitiveClass(props.node.value)}> {JSON.stringify(props.node.value)}</span>
       </Show>
 
       {/* Display for arrays/objects */}
