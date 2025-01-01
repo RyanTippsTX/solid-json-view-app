@@ -1,4 +1,13 @@
-import { createSignal, type Component, type ParentComponent, Show, Switch, Match } from 'solid-js';
+import {
+  createSignal,
+  type Component,
+  type ParentComponent,
+  Switch,
+  Match,
+  onCleanup,
+  createEffect,
+  createMemo,
+} from 'solid-js';
 import { useJsonAnalyzer } from './lib';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from './components/Json';
@@ -59,9 +68,12 @@ const App: Component = () => {
           <A href="https://json.pub">json.pub</A>
         </div>
         <p>
-          Status: {analysis().status} | Words: {analysis().metadata.words} | Lines:{' '}
-          {analysis().metadata.lines} | Chars: {analysis().metadata.chars} | Tokens:{' '}
-          {analysis().metadata.tokens} | Size: {analysis().metadata.size}
+          Status: <FlashingValue value={() => analysis().status} /> | Words:{' '}
+          <FlashingValue value={() => analysis().metadata.words} /> | Lines:{' '}
+          <FlashingValue value={() => analysis().metadata.lines} /> | Chars:{' '}
+          <FlashingValue value={() => analysis().metadata.chars} /> | Tokens:{' '}
+          <FlashingValue value={() => analysis().metadata.tokens} /> | Size:{' '}
+          <FlashingValue value={() => analysis().metadata.size} />
         </p>
       </footer>
       <JsonSampleSticker formNeedsInput={() => !jsonString()} />
@@ -70,6 +82,29 @@ const App: Component = () => {
 };
 
 export default App;
+
+function FlashingValue(props: { value: () => number | string }) {
+  const [flash, setFlash] = createSignal(false);
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  const currentValue = createMemo(() => props.value());
+
+  createEffect(() => {
+    const newValue = currentValue();
+    setFlash(false);
+    clearTimeout(timeoutId!);
+
+    // Restart the flash animation
+    setTimeout(() => setFlash(true), 0);
+
+    // Set a new timeout to reset the flash signal
+    timeoutId = setTimeout(() => setFlash(false), 500);
+  });
+
+  onCleanup(() => clearTimeout(timeoutId!));
+
+  return <span classList={{ 'animate-flash': flash() }}>{props.value()}</span>;
+}
 
 const Divider: Component = () => <div class="w-2.5 grow-0 shrink-0 bg-white/5" />;
 
