@@ -1,7 +1,7 @@
 import { createSignal, type Component, type ParentComponent, createMemo } from 'solid-js';
 import { isJson, parseJsonString } from './lib';
 import { JsonSampleSticker, sampleJson } from './components/JsonSampleSticker';
-import { JsonTree, JsonTreeNoSignals } from './components/Json';
+import { JsonTree } from './components/Json';
 
 const App: Component = () => {
   const [rawJson, setRawJson] = createSignal('');
@@ -28,8 +28,7 @@ const App: Component = () => {
         <TextColumn>
           {/* OUTPUT */}
           <div id="formatted-json" class="w-full h-full p-4 overflow-auto">
-            {/* <JsonTree data={data} /> */}
-            <JsonTreeNoSignals data={data()} />
+            <JsonTree data={data()} />
           </div>
         </TextColumn>
       </div>

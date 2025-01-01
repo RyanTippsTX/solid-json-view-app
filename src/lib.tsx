@@ -19,9 +19,9 @@ export function parseJsonString(jsonString: string): { [key: string]: any } | nu
   }
 }
 
-type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
-type JsonObject = { [key: string]: JsonValue };
-type JsonArray = JsonValue[];
+export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+export type JsonObject = { [key: string]: JsonValue };
+export type JsonArray = JsonValue[];
 
 type AnnotatedTreeNode =
   | {
