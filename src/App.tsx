@@ -42,7 +42,7 @@ const App: Component = () => {
                 <p>Enter JSON to analyze.</p>
               </Match>
               <Match when={analysis().status === 'error'}>
-                <p>Error: {analysis().error}</p>
+                <p class="text-red-500">Error: {analysis().error}</p>
               </Match>
               <Match when={analysis().status === 'valid'}>
                 <TreeView
