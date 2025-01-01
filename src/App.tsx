@@ -72,13 +72,11 @@ const App: Component = () => {
           by <A href="https://www.linkedin.com/in/ryantipps/">in/RyanTipps</A> - Inspired by{' '}
           <A href="https://json.pub">json.pub</A>
         </div>
-        <Show when={analysis().status === 'valid'}>
-          <p>
-            Words: {analysis().metadata.words} | Lines: {analysis().metadata.lines} | Chars:{' '}
-            {analysis().metadata.chars} | Tokens: {analysis().metadata.tokens} | Size:{' '}
-            {analysis().metadata.size} KB
-          </p>
-        </Show>
+        <p>
+          Status: {analysis().status} | Words: {analysis().metadata.words} | Lines:{' '}
+          {analysis().metadata.lines} | Chars: {analysis().metadata.chars} | Tokens:{' '}
+          {analysis().metadata.tokens} | Size: {analysis().metadata.size}
+        </p>
       </footer>
       <JsonSampleSticker formNeedsInput={() => !jsonString()} />
     </div>

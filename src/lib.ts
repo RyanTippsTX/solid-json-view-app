@@ -78,10 +78,6 @@ export function useJsonAnalyzer(jsonString: () => string) {
     }
 
     try {
-      // Parse JSON and build the annotated tree
-      const parsed = JSON.parse(text);
-      tree = buildAnnotatedTree(parsed);
-
       // Compute metadata
       metadata = {
         words: text.split(/\s+/).filter(Boolean).length, // Count words
@@ -90,6 +86,10 @@ export function useJsonAnalyzer(jsonString: () => string) {
         tokens: text.match(/\S+/g)?.length || 0, // Count tokens (non-whitespace)
         size: `${(new Blob([text]).size / 1024).toFixed(2)} KB`, // Size in KB
       };
+
+      // Parse JSON and build the annotated tree
+      const parsed = JSON.parse(text);
+      tree = buildAnnotatedTree(parsed);
 
       status = 'valid'; // Parsing succeeded
     } catch (e) {
