@@ -1,42 +1,43 @@
 import { createSignal, type Component, type ParentComponent, createEffect, Show } from 'solid-js';
-import { buildTree, isJson, parseJsonString } from './lib';
-import { JsonSampleSticker } from './components/JsonSampleSticker';
+import { JsonTree, isJson, parseJsonString } from './lib';
+import { JsonSampleSticker, sampleJson } from './components/JsonSampleSticker';
 
 const App: Component = () => {
-  const [rawJson, setRawJson] = createSignal('');
-  createEffect(() => {
-    console.log('🔥 input detected:', rawJson());
-  });
+  const [rawJson, setRawJson] = createSignal(sampleJson);
+  // createEffect(() => {
+  //   // console.log('🔥 input detected:', rawJson());
+  // });
 
-  const parsedJsonString = () => parseJsonString(rawJson());
-  // const formattedJson = () =>
-  //   parsedJsonString().success ? JSON.stringify(parsedJsonString().data, null, 4) : '';
-  const tree = () => buildTree(parsedJsonString().data);
+  const data = () => parseJsonString(rawJson());
+
+  // createEffect(() => {
+  //   // console.log('🔥 parsedJsonString:', data());
+  //   // console.log('🔥 typeof:', typeof data());
+  // });
 
   return (
-    <div class="flex flex-col h-screen">
-      <header class="text-center p-1 text-lg bg-burnt-orange">JSON Viewer</header>
-      <div class="flex justify-center grow bg-neutral-800">
+    <div class="flex flex-col h-screen w-screen">
+      <header class="grow-0 shrink-0 text-center p-1 text-lg bg-burnt-orange">JSON Viewer</header>
+      <div class="flex-1 flex flex-row justify-center bg-neutral-800 overflow-hidden">
         <TextColumn>
           {/* INPUT */}
           <textarea
             id="raw-json"
             tabindex={-1}
             autofocus
-            class="w-full h-full outline-none bg-transparent border-none resize-none"
+            class="block w-full h-full p-4 box-borderx  outline-none bg-transparent border-none resize-none overflow-auto"
             placeholder="Paste your raw JSON here..."
             onInput={(e) => {
               setRawJson(e.target.value);
             }}
+            value={sampleJson}
           />
         </TextColumn>
         <Divider />
         <TextColumn>
           {/* OUTPUT */}
-          <div id="formatted-json" class="w-full h-full">
-            <Show when={parsedJsonString().success} fallback={''}>
-              <JsonTree tree={tree()} />
-            </Show>
+          <div id="formatted-json" class="w-full h-full p-4 overflow-auto">
+            <JsonTree data={data} />
           </div>
           {/* <textarea
             id="formatted-json"
@@ -46,7 +47,7 @@ const App: Component = () => {
           /> */}
         </TextColumn>
       </div>
-      <footer class="flex bg-neutral-950 text-neutral-400 px-4 py-3 text-2xs justify-between">
+      <footer class="flex grow-0 shrink-0 bg-neutral-950 text-neutral-400 px-4 py-3 text-2xs justify-between">
         <div class="italic">
           by <A href="https://www.linkedin.com/in/ryantipps/">in/RyanTipps</A> - Inspired by{' '}
           <A href="https://json.pub">json.pub</A>
@@ -63,7 +64,7 @@ export default App;
 const Divider: Component = () => <div class="w-2.5 grow-0 shrink-0 bg-white/5" />;
 
 const TextColumn: ParentComponent = (props) => (
-  <div class="flex-1 p-4 text-sm">{props.children}</div>
+  <div class="flex-1 min-w-0 text-2xs">{props.children}</div>
 );
 
 const A: Component<{
@@ -82,28 +83,3 @@ const A: Component<{
     {props.children}
   </a>
 );
-
-function TreeNode(props) {
-  const [expanded, setExpanded] = createSignal(props.node.expanded);
-
-  return (
-    <div class="ml-4">
-      <div>
-        <span onClick={() => setExpanded(!expanded())} style={{ cursor: 'pointer' }}>
-          {props.node.type === 'object' || props.node.type === 'array'
-            ? expanded()
-              ? '[-]'
-              : '[+]'
-            : null}
-        </span>
-        <strong>{props.node.key}:</strong>{' '}
-        {props.node.type === 'primitive' ? String(props.node.value) : null}
-      </div>
-      {expanded() && props.node.children.map((child) => <TreeNode node={child} />)}
-    </div>
-  );
-}
-
-function JsonTree(props) {
-  return <TreeNode node={props.tree} />;
-}
