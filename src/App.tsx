@@ -1,11 +1,11 @@
-import { createSignal, type Component, type ParentComponent, createEffect, Show } from 'solid-js';
+import { createSignal, type Component, type ParentComponent, createMemo } from 'solid-js';
 import { isJson, parseJsonString } from './lib';
 import { JsonSampleSticker, sampleJson } from './components/JsonSampleSticker';
 import { JsonTree, JsonTreeNoSignals } from './components/Json';
 
 const App: Component = () => {
   const [rawJson, setRawJson] = createSignal('');
-  const data = () => parseJsonString(rawJson());
+  const data = createMemo(() => parseJsonString(rawJson()));
 
   return (
     <div class="flex flex-col h-screen w-screen">
