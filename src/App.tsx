@@ -42,13 +42,13 @@ const App: Component = () => {
               <TreeView
                 node={annotatedTree()}
                 classes={{
-                  propertyName: 'text-slate-500', // White for property names
-                  string: 'text-orange-500', // Witch purple for strings
-                  number: 'text-purple-500', // Candy corn orange for numbers
-                  boolean: 'text-green-500', // Slime green for booleans
-                  null: 'text-red-500', // Spooky red for null values
-                  array: 'text-indigo-400', // Witch purple for arrays
-                  object: 'text-amber-300', // Darker slime green for objects
+                  propertyName: 'text-slate-500',
+                  string: 'text-orange-500',
+                  number: 'text-purple-500',
+                  boolean: 'text-green-500',
+                  null: 'text-red-500',
+                  array: 'text-indigo-400',
+                  object: 'text-amber-300',
                 }}
               />
             </Show>
