@@ -1,7 +1,5 @@
 import { createEffect, Component, createSignal, Accessor, Show } from 'solid-js';
-
-export const sampleJson =
-  '{"glossary": {"title": 3333,"GlossDiv": {"title": null,"GlossList": {"GlossEntry": {"ID": "SGML","SortAs": "SGML","GlossTerm": "Standard Generalized Markup Language","Acronym": "SGML","Abbrev": "ISO 8879:1986","GlossDef": {"para": "A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso": ["GML", "XML"]},"GlossSee": "markup"}}}}}';
+import { sampleJson } from './sampleJson';
 
 export const JsonSampleSticker: Component<{
   formNeedsInput: Accessor<boolean>;
