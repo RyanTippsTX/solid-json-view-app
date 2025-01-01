@@ -1,11 +1,22 @@
-import { createSignal, type Component, type ParentComponent, createMemo } from 'solid-js';
-import { isJson, parseJsonString } from './lib';
-import { JsonSampleSticker, sampleJson } from './components/JsonSampleSticker';
-import { JsonTree } from './components/Json';
+import { createSignal, type Component, type ParentComponent, createMemo, Show } from 'solid-js';
+import { isJson, parseJsonString, buildAnnotatedTree } from './lib';
+import { JsonSampleSticker } from './components/JsonSampleSticker';
+import { TreeView } from './components/Json';
 
 const App: Component = () => {
-  const [rawJson, setRawJson] = createSignal('');
-  const data = createMemo(() => parseJsonString(rawJson()));
+  const [jsonString, setJsonString] = createSignal('');
+  const data = createMemo(() => parseJsonString(jsonString()));
+
+  // Derived signal for the annotated tree
+  const annotatedTree = createMemo(() => {
+    try {
+      const parsed = JSON.parse(jsonString());
+      return buildAnnotatedTree(parsed);
+    } catch (e) {
+      // console.error('Invalid JSON:', e);
+      return null;
+    }
+  });
 
   return (
     <div class="flex flex-col h-screen w-screen">
@@ -19,16 +30,17 @@ const App: Component = () => {
             autofocus
             class="block w-full h-full p-4 box-borderx  outline-none bg-transparent border-none resize-none overflow-auto"
             placeholder="Paste your raw JSON here..."
-            onInput={(e) => {
-              setRawJson(e.target.value);
-            }}
+            value={jsonString()}
+            onInput={(e) => setJsonString(e.currentTarget.value)}
           />
         </TextColumn>
         <Divider />
         <TextColumn>
           {/* OUTPUT */}
           <div id="formatted-json" class="w-full h-full p-4 overflow-auto">
-            <JsonTree data={data()} />
+            <Show when={annotatedTree()} fallback={<p>Invalid JSON</p>}>
+              <TreeView node={annotatedTree()} />
+            </Show>
           </div>
         </TextColumn>
       </div>
@@ -37,9 +49,9 @@ const App: Component = () => {
           by <A href="https://www.linkedin.com/in/ryantipps/">in/RyanTipps</A> - Inspired by{' '}
           <A href="https://json.pub">json.pub</A>
         </div>
-        <div>Status: {isJson(rawJson()) ? 'valid json' : 'invalid json'}</div>
+        <div>Status: {isJson(jsonString()) ? 'valid json' : 'invalid json'}</div>
       </footer>
-      <JsonSampleSticker formNeedsInput={() => !rawJson()} />
+      <JsonSampleSticker formNeedsInput={() => !jsonString()} />
     </div>
   );
 };

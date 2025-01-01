@@ -1,5 +1,3 @@
-import { Accessor, Component, For, Match, Show, Signal, Switch, createSignal } from 'solid-js';
-
 /** Boolean check for valid json. */
 export const isJson = (str: string) => {
   try {
@@ -43,7 +41,8 @@ type AnnotatedTreeNode =
       parent: AnnotatedTreeNode | null;
     };
 
-function buildAnnotatedTree(
+/** Transforms JSON data into tree structure for easier traversal & display. */
+export function buildAnnotatedTree(
   json: JsonValue,
   key: string | null = null,
   parent: AnnotatedTreeNode | null = null
@@ -72,16 +71,3 @@ function buildAnnotatedTree(
     throw new Error('Unsupported JSON value');
   }
 }
-
-// // Example usage
-// const jsonData: JsonObject = {
-//   glossary: {
-//     title: 'example glossary',
-//     qty: 20,
-//     mail: false,
-//     status: null,
-//     stuff: [100, 200, 'foo', { status: null }],
-//   },
-// };
-
-// const annotatedTree = buildAnnotatedTree(jsonData);
