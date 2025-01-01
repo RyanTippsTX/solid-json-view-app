@@ -1,19 +1,11 @@
 import { createSignal, type Component, type ParentComponent, createEffect, Show } from 'solid-js';
-import { JsonTree, isJson, parseJsonString } from './lib';
+import { isJson, parseJsonString } from './lib';
 import { JsonSampleSticker, sampleJson } from './components/JsonSampleSticker';
+import { JsonTree, JsonTreeNoSignals } from './components/Json';
 
 const App: Component = () => {
-  const [rawJson, setRawJson] = createSignal(sampleJson);
-  // createEffect(() => {
-  //   // console.log('🔥 input detected:', rawJson());
-  // });
-
+  const [rawJson, setRawJson] = createSignal('');
   const data = () => parseJsonString(rawJson());
-
-  // createEffect(() => {
-  //   // console.log('🔥 parsedJsonString:', data());
-  //   // console.log('🔥 typeof:', typeof data());
-  // });
 
   return (
     <div class="flex flex-col h-screen w-screen">
@@ -30,21 +22,15 @@ const App: Component = () => {
             onInput={(e) => {
               setRawJson(e.target.value);
             }}
-            value={sampleJson}
           />
         </TextColumn>
         <Divider />
         <TextColumn>
           {/* OUTPUT */}
           <div id="formatted-json" class="w-full h-full p-4 overflow-auto">
-            <JsonTree data={data} />
+            {/* <JsonTree data={data} /> */}
+            <JsonTreeNoSignals data={data()} />
           </div>
-          {/* <textarea
-            id="formatted-json"
-            tabindex={-1}
-            class="w-full h-full outline-none bg-transparent border-none resize-none"
-            textContent={formattedJson()}
-          /> */}
         </TextColumn>
       </div>
       <footer class="flex grow-0 shrink-0 bg-neutral-950 text-neutral-400 px-4 py-3 text-2xs justify-between">

@@ -19,195 +19,69 @@ export function parseJsonString(jsonString: string): { [key: string]: any } | nu
   }
 }
 
-type JsonObject = { [key: string]: JsonData };
-type JsonData = JsonObject | JsonData[] | string | number | null;
-type TreeNode = {
-  key: string | number | null;
-  parentType: 'object' | 'array' | 'root';
-  value: JsonData;
-  type: 'string' | 'number' | 'object' | 'array' | 'null';
-  children: TreeNode[];
-};
+type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+type JsonObject = { [key: string]: JsonValue };
+type JsonArray = JsonValue[];
 
-function buildTree({
-  key,
-  parentType,
-  value,
-}: {
-  value: JsonData;
-  key: string | number | null;
-  parentType: 'object' | 'array' | 'root';
-}): TreeNode {
-  // bad TS, fix later
-  let type = typeof value as 'string' | 'number' | 'object' | 'array' | 'null';
-  if (type === 'object') {
-    if (value === null) {
-      type = 'null';
-    } else if (Array.isArray(value)) {
-      type = 'array';
+type AnnotatedTreeNode =
+  | {
+      type: 'primitive';
+      key: string | null;
+      value: string | number | boolean | null;
+      parent: AnnotatedTreeNode | null;
     }
-  }
+  | {
+      type: 'array';
+      key: string | null;
+      children: AnnotatedTreeNode[];
+      parent: AnnotatedTreeNode | null;
+    }
+  | {
+      type: 'object';
+      key: string | null;
+      children: AnnotatedTreeNode[];
+      parent: AnnotatedTreeNode | null;
+    };
 
-  if (!['string', 'number', 'object', 'array', 'null'].includes(type)) {
-    throw new Error('Invalid data type');
+function buildAnnotatedTree(
+  json: JsonValue,
+  key: string | null = null,
+  parent: AnnotatedTreeNode | null = null
+): AnnotatedTreeNode {
+  if (
+    typeof json === 'string' ||
+    typeof json === 'number' ||
+    typeof json === 'boolean' ||
+    json === null
+  ) {
+    // Primitive node
+    return { type: 'primitive', key, value: json as string | number | boolean | null, parent };
+  } else if (Array.isArray(json)) {
+    // Array node
+    const node: AnnotatedTreeNode = { type: 'array', key, children: [], parent };
+    node.children = json.map((item, index) => buildAnnotatedTree(item, index.toString(), node));
+    return node;
+  } else if (typeof json === 'object') {
+    // Object node
+    const node: AnnotatedTreeNode = { type: 'object', key, children: [], parent };
+    node.children = Object.entries(json).map(([childKey, childValue]) =>
+      buildAnnotatedTree(childValue, childKey, node)
+    );
+    return node;
+  } else {
+    throw new Error('Unsupported JSON value');
   }
-
-  return {
-    key,
-    value,
-    type,
-    parentType,
-    children:
-      type === 'object' || type === 'array'
-        ? Object.entries(value).map(([k, v]) =>
-            buildTree({
-              key: k,
-              value: v,
-              parentType: type === 'object' ? 'object' : type === 'array' ? 'array' : 'root',
-            })
-          )
-        : [],
-  };
 }
 
-export function JsonTree(props: { data: Accessor<JsonObject> }) {
-  const jsonObject = props.data();
-  const nodeData = buildTree({
-    key: null,
-    parentType: 'root',
-    value: jsonObject,
-  });
-
-  console.log('🔥 nodeData', nodeData);
-  return <TreeNode nodeData={nodeData} />;
-}
-
-export const TreeNode = (props: { nodeData: TreeNode }) => {
-  const node = props.nodeData;
-  const [expanded, setExpanded] = createSignal(true);
-
-  const keyDisplay = (
-    <Show when={node.key}>
-      <Switch>
-        <Match when={node.parentType === 'object'}>
-          <span>"{node.key}":</span>
-        </Match>
-        <Match when={node.parentType === 'array'}>
-          <span>{node.key}:</span>
-        </Match>
-      </Switch>
-    </Show>
-  );
-
-  if (node.type === 'object') {
-    return (
-      <div>
-        {keyDisplay}
-        <Expander expanded={expanded} setExpanded={setExpanded} />
-        <span>{'{'}</span>
-        <Show when={expanded()} fallback={'...'}>
-          <div class="ml-8">
-            {node.children.map((child) => (
-              <div>
-                <TreeNode nodeData={child} />
-              </div>
-            ))}
-          </div>
-        </Show>
-        <span>{'}'}</span>
-      </div>
-    );
-  }
-
-  if (node.type === 'array') {
-    return (
-      <div>
-        {keyDisplay}
-        <Expander expanded={expanded} setExpanded={setExpanded} />
-        <span>{'['}</span>
-        <Show when={expanded()} fallback={'...'}>
-          <div class="ml-8">
-            <For each={node.children}>
-              {(child) => (
-                <div>
-                  <TreeNode nodeData={child} />
-                </div>
-              )}
-            </For>
-          </div>
-        </Show>
-        <span>{']'}</span>
-      </div>
-    );
-  }
-
-  if (node.type === 'string' || node.type === 'number') {
-    return (
-      <div>
-        {keyDisplay} <span>{typeof node.value === 'number' ? node.value : `"${node.value}"`}</span>
-      </div>
-    );
-  }
-
-  if (node.type === 'null') {
-    return (
-      <div>
-        {keyDisplay} <span>{node.key}</span>: <span>null</span>
-      </div>
-    );
-  }
-
-  return <div>😭 unhandled type: {node.type}</div>;
-};
-
-// export const JsonTree: Component<{
-//   data: Accessor<JsonData>;
-//   key: Accessor<string | number | undefined>;
-// }> = (props) => {
-//   const [expanded, setExpanded] = createSignal(true);
-
-//   return (
-//     <div>
-//       <Key key={props.key} /> <Expander />{' '}
-//       <Switch fallback={<p>Fallback content</p>}>
-//         <Match when={props.data() === null}>
-//           <span>null</span>
-//         </Match>
-//         <Match when={Array.isArray(props.data())}>
-//           <div>
-//             <For each={props.data() as JsonData[]}>
-//               {(value, index) => <JsonTree data={() => value} key={() => undefined} />}
-//             </For>
-//           </div>
-//         </Match>
-//         <Match when={typeof props.data() === 'object'}>
-//           <span>{'{'}</span>
-//           <Show when={expanded()}>
-//             <div class="ml-8">
-//               {/* <For each={Object.entries(props.data() as { [key: string]: JsonData })}>
-//                 {(value, index) => <JsonTree data={() => value} key={() => index} />}
-//               </For> */}
-//             </div>
-//           </Show>
-//           <span>{'}'}</span>
-//         </Match>
-//       </Switch>
-//     </div>
-//   );
+// // Example usage
+// const jsonData: JsonObject = {
+//   glossary: {
+//     title: 'example glossary',
+//     qty: 20,
+//     mail: false,
+//     status: null,
+//     stuff: [100, 200, 'foo', { status: null }],
+//   },
 // };
 
-// const Key = (props) => (
-//   <Show when={props.key()}>
-//     <span>"property":</span>
-//   </Show>
-// );
-const Expander = (props) => (
-  <span
-    onClick={() => {
-      props.setExpanded(!props.expanded());
-    }}
-  >
-    [+]
-  </span>
-);
-// const Value = () => <span>"value"</span>;
+// const annotatedTree = buildAnnotatedTree(jsonData);
