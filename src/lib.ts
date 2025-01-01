@@ -1,10 +1,8 @@
-import { createMemo } from 'solid-js';
-
 export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
 export type JsonObject = { [key: string]: JsonValue };
 export type JsonArray = JsonValue[];
 
-type AnnotatedTreeNode =
+export type AnnotatedTreeNode =
   | {
       type: 'primitive';
       key: string | null;
@@ -55,50 +53,59 @@ export function buildAnnotatedTree(
   }
 }
 
-/** Analyzes JSON data, returns metadata & tree transformation. */
-export function useJsonAnalyzer(jsonString: () => string) {
-  const analysis = createMemo(() => {
-    const text = jsonString().trim();
+export type JsonAnalysis = {
+  tree: ReturnType<typeof buildAnnotatedTree> | null;
+  metadata: {
+    words: number;
+    lines: number;
+    chars: number;
+    tokens: number;
+    size: string;
+  };
+  status: 'valid' | 'error' | 'null';
+  error: string | null;
+};
 
-    // Initialize outputs
-    let tree = null;
-    let metadata = {
-      words: 0,
-      lines: 0,
-      chars: 0,
-      tokens: 0,
-      size: '0 KB',
-    };
-    let status: 'valid' | 'error' | 'null' = 'null'; // Default to "null"
-    let error = null;
+/** Returns metadata & tree transformation of a JSON string. */
+export function analyzeJson(jsonString: string): JsonAnalysis {
+  const text = jsonString.trim();
 
-    if (text.length === 0) {
-      // Empty input: no further processing needed
-      return { tree, metadata, status, error };
-    }
+  // Initialize outputs
+  let tree = null;
+  let metadata = {
+    words: 0,
+    lines: 0,
+    chars: 0,
+    tokens: 0,
+    size: '0 KB',
+  };
+  let status: 'valid' | 'error' | 'null' = 'null'; // Default to "null"
+  let error = null;
 
-    try {
-      // Compute metadata
-      metadata = {
-        words: text.split(/\s+/).filter(Boolean).length, // Count words
-        lines: text.split(/\n/).length, // Count lines
-        chars: text.length, // Character count
-        tokens: text.match(/\S+/g)?.length || 0, // Count tokens (non-whitespace)
-        size: `${(new Blob([text]).size / 1024).toFixed(2)} KB`, // Size in KB
-      };
-
-      // Parse JSON and build the annotated tree
-      const parsed = JSON.parse(text);
-      tree = buildAnnotatedTree(parsed);
-
-      status = 'valid'; // Parsing succeeded
-    } catch (e) {
-      status = 'error'; // Parsing failed
-      error = e.message;
-    }
-
+  if (text.length === 0) {
+    // Empty input: no further processing needed
     return { tree, metadata, status, error };
-  });
+  }
 
-  return analysis;
+  try {
+    // Compute metadata
+    metadata = {
+      words: text.split(/\s+/).filter(Boolean).length, // Count words
+      lines: text.split(/\n/).length, // Count lines
+      chars: text.length, // Character count
+      tokens: text.match(/\S+/g)?.length || 0, // Count tokens (non-whitespace)
+      size: `${(new Blob([text]).size / 1024).toFixed(2)} KB`, // Size in KB
+    };
+
+    // Parse JSON and build the annotated tree
+    const parsed = JSON.parse(text) as JsonValue;
+    tree = buildAnnotatedTree(parsed);
+
+    status = 'valid'; // Parsing succeeded
+  } catch (e) {
+    status = 'error'; // Parsing failed
+    error = (e as Error).message;
+  }
+
+  return { tree, metadata, status, error };
 }

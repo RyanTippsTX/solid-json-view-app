@@ -8,9 +8,13 @@ import {
   createEffect,
   createMemo,
 } from 'solid-js';
-import { useJsonAnalyzer } from './lib';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from './components/TreeView';
+import { type JsonAnalysis, analyzeJson } from './lib';
+
+export function useJsonAnalyzer(jsonString: () => string): () => JsonAnalysis {
+  return createMemo(() => analyzeJson(jsonString()));
+}
 
 const App: Component = () => {
   const [jsonString, setJsonString] = createSignal('');
