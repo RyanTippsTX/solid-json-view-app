@@ -50,20 +50,6 @@ const App: Component = () => {
                 />
               </Match>
             </Switch>
-            {/* <Show when={annotatedTree()} fallback={<p>Invalid JSON</p>}>
-              <TreeView
-                node={annotatedTree()}
-                classes={{
-                  propertyName: 'text-slate-500',
-                  string: 'text-orange-500',
-                  number: 'text-purple-500',
-                  boolean: 'text-green-500',
-                  null: 'text-red-500',
-                  array: 'text-indigo-400',
-                  object: 'text-amber-300',
-                }}
-              />
-            </Show> */}
           </div>
         </TextColumn>
       </div>
