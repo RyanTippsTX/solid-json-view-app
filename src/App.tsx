@@ -1,22 +1,12 @@
-import { createSignal, type Component, type ParentComponent, createMemo, Show } from 'solid-js';
-import { isJson, parseJsonString, buildAnnotatedTree } from './lib';
+import { createSignal, type Component, type ParentComponent, Show, Switch, Match } from 'solid-js';
+import { useJsonAnalyzer } from './lib';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from './components/Json';
 
 const App: Component = () => {
   const [jsonString, setJsonString] = createSignal('');
-  const data = createMemo(() => parseJsonString(jsonString()));
 
-  // Derived signal for the annotated tree
-  const annotatedTree = createMemo(() => {
-    try {
-      const parsed = JSON.parse(jsonString());
-      return buildAnnotatedTree(parsed);
-    } catch (e) {
-      // console.error('Invalid JSON:', e);
-      return null;
-    }
-  });
+  const analysis = useJsonAnalyzer(jsonString);
 
   return (
     <div class="flex flex-col h-screen w-screen">
@@ -38,7 +28,29 @@ const App: Component = () => {
         <TextColumn>
           {/* OUTPUT */}
           <div id="formatted-json" class="w-full h-full p-4 overflow-auto">
-            <Show when={annotatedTree()} fallback={<p>Invalid JSON</p>}>
+            <Switch fallback={<p>Something unexpected happened</p>}>
+              <Match when={analysis().status === 'null'}>
+                <p>Enter JSON to analyze.</p>
+              </Match>
+              <Match when={analysis().status === 'error'}>
+                <p>Error: {analysis().error}</p>
+              </Match>
+              <Match when={analysis().status === 'valid'}>
+                <TreeView
+                  node={analysis().tree}
+                  classes={{
+                    propertyName: 'text-slate-500',
+                    string: 'text-orange-500',
+                    number: 'text-purple-500',
+                    boolean: 'text-green-500',
+                    null: 'text-red-500',
+                    array: 'text-indigo-400',
+                    object: 'text-amber-300',
+                  }}
+                />
+              </Match>
+            </Switch>
+            {/* <Show when={annotatedTree()} fallback={<p>Invalid JSON</p>}>
               <TreeView
                 node={annotatedTree()}
                 classes={{
@@ -51,7 +63,7 @@ const App: Component = () => {
                   object: 'text-amber-300',
                 }}
               />
-            </Show>
+            </Show> */}
           </div>
         </TextColumn>
       </div>
@@ -60,7 +72,13 @@ const App: Component = () => {
           by <A href="https://www.linkedin.com/in/ryantipps/">in/RyanTipps</A> - Inspired by{' '}
           <A href="https://json.pub">json.pub</A>
         </div>
-        <div>Status: {isJson(jsonString()) ? 'valid json' : 'invalid json'}</div>
+        <Show when={analysis().status === 'valid'}>
+          <p>
+            Words: {analysis().metadata.words} | Lines: {analysis().metadata.lines} | Chars:{' '}
+            {analysis().metadata.chars} | Tokens: {analysis().metadata.tokens} | Size:{' '}
+            {analysis().metadata.size} KB
+          </p>
+        </Show>
       </footer>
       <JsonSampleSticker formNeedsInput={() => !jsonString()} />
     </div>

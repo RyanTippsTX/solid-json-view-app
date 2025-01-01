@@ -1,21 +1,4 @@
-/** Boolean check for valid json. */
-export const isJson = (str: string) => {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
-  return true;
-};
-
-/** Safe-parses json to object. */
-export function parseJsonString(jsonString: string): { [key: string]: any } | null {
-  try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    return null;
-  }
-}
+import { createMemo } from 'solid-js';
 
 export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
 export type JsonObject = { [key: string]: JsonValue };
@@ -70,4 +53,52 @@ export function buildAnnotatedTree(
   } else {
     throw new Error('Unsupported JSON value');
   }
+}
+
+/** Analyzes JSON data, returns metadata & tree transformation. */
+export function useJsonAnalyzer(jsonString: () => string) {
+  const analysis = createMemo(() => {
+    const text = jsonString().trim();
+
+    // Initialize outputs
+    let tree = null;
+    let metadata = {
+      words: 0,
+      lines: 0,
+      chars: 0,
+      tokens: 0,
+      size: '0 KB',
+    };
+    let status: 'valid' | 'error' | 'null' = 'null'; // Default to "null"
+    let error = null;
+
+    if (text.length === 0) {
+      // Empty input: no further processing needed
+      return { tree, metadata, status, error };
+    }
+
+    try {
+      // Parse JSON and build the annotated tree
+      const parsed = JSON.parse(text);
+      tree = buildAnnotatedTree(parsed);
+
+      // Compute metadata
+      metadata = {
+        words: text.split(/\s+/).filter(Boolean).length, // Count words
+        lines: text.split(/\n/).length, // Count lines
+        chars: text.length, // Character count
+        tokens: text.match(/\S+/g)?.length || 0, // Count tokens (non-whitespace)
+        size: `${(new Blob([text]).size / 1024).toFixed(2)} KB`, // Size in KB
+      };
+
+      status = 'valid'; // Parsing succeeded
+    } catch (e) {
+      status = 'error'; // Parsing failed
+      error = e.message;
+    }
+
+    return { tree, metadata, status, error };
+  });
+
+  return analysis;
 }
