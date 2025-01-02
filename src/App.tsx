@@ -11,11 +11,33 @@ import {
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from '@ryantipps/solid-json-view';
 import { analyzeJson } from '@ryantipps/json-utils';
+import { encodeBase64Url, updateUrlFragment, getJsonFromUrlFragment } from './lib';
 
 const App: Component = () => {
   const [jsonString, setJsonString] = createSignal('');
 
   const analysis = createMemo(() => analyzeJson(jsonString()));
+
+  // Sync input with the hash on page load
+  createEffect(() => {
+    setJsonString(getJsonFromUrlFragment());
+  });
+
+  // Sync URL hash when the input changes
+  createEffect(() => {
+    const input = jsonString().trim();
+    const encoded = encodeBase64Url(input);
+    updateUrlFragment(encoded);
+  });
+
+  // Listen for hash changes (e.g., browser back/forward navigation)
+  const handleHashChange = () => {
+    setJsonString(getJsonFromUrlFragment());
+  };
+  window.addEventListener('hashchange', handleHashChange);
+  onCleanup(() => {
+    window.removeEventListener('hashchange', handleHashChange);
+  });
 
   return (
     <div class="flex flex-col h-screen w-screen">
@@ -27,7 +49,7 @@ const App: Component = () => {
             id="raw-json"
             tabindex={-1}
             autofocus
-            class="block w-full h-full p-4 box-borderx  outline-none bg-transparent border-none resize-none overflow-auto"
+            class="block w-full h-full p-4 outline-none bg-transparent border-none resize-none overflow-auto"
             placeholder="Paste your raw JSON here..."
             value={jsonString()}
             onInput={(e) => setJsonString(e.currentTarget.value)}
