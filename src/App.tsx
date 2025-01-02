@@ -9,7 +9,7 @@ import {
   createMemo,
 } from 'solid-js';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
-import { TreeView } from './components/TreeView';
+import { TreeView } from '@ryantipps/solid-json-view';
 import { analyzeJson } from '@ryantipps/json-utils';
 
 const App: Component = () => {
