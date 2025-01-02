@@ -10,7 +10,7 @@ import {
 } from 'solid-js';
 import { JsonSampleSticker } from './components/JsonSampleSticker';
 import { TreeView } from './components/TreeView';
-import { analyzeJson } from './lib';
+import { analyzeJson } from '@ryantipps/json-utils';
 
 const App: Component = () => {
   const [jsonString, setJsonString] = createSignal('');
